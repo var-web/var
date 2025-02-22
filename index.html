@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>جدول مباريات اليوم</title>
+    <style>
+        :root {
+            --primary-color: #1e3a5f;
+            --secondary-color: #e74c3c;
+            --background-color: #000000;
+            --text-color: #ffffff;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            padding: 20px;
+            background: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            padding-bottom: 10px;
+            border-bottom: 3px solid var(--secondary-color);
+            margin-bottom: 30px;
+        }
+
+        .league {
+            background: #1c1c1c;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .league-header {
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .matches-list {
+            padding: 20px;
+        }
+
+        .match-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #2c2c2c;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+
+        .match-item:hover {
+            transform: scale(1.02);
+        }
+
+        .team {
+            font-size: 1.2em;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 0px;
+        }
+
+        .time {
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🗓 جدول مباريات اليوم</h1>
+
+        <!-- الدوري الإنجليزي الممتاز -->
+        <div class="league">
+            <div class="league-header">
+                <h2>الدوري الإنجليزي الممتاز</h2>
+            </div>
+            <div class="matches-list">
+                <div class="match-item">
+                    <div class="team">نيوكاسل يونايتد</div>
+                    <div class="time" id="match1-time"></div>
+                    <div class="team">نوتينغهام فورست</div>
+                </div>
+                <div class="match-item">
+                    <div class="team">مانشستر سيتي</div>
+                    <div class="time" id="match2-time"></div>
+                    <div class="team">ليفربول</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الدوري الإسباني -->
+        <div class="league">
+            <div class="league-header">
+                <h2>الدوري الإسباني (لاليغا)</h2>
+            </div>
+            <div class="matches-list">
+                <div class="match-item">
+                    <div class="team">أتلتيك بلباو</div>
+                    <div class="time" id="match3-time"></div>
+                    <div class="team">بلد الوليد</div>
+                </div>
+                <div class="match-item">
+                    <div class="team">ريال مدريد</div>
+                    <div class="time" id="match4-time"></div>
+                    <div class="team">جيرونا</div>
+                </div>
+                <div class="match-item">
+                    <div class="team">خيتافي</div>
+                    <div class="time" id="match5-time"></div>
+                    <div class="team">ريال بيتيس</div>
+                </div>
+                <div class="match-item">
+                    <div class="team">ريال سوسييداد</div>
+                    <div class="time" id="match6-time"></div>
+                    <div class="team">ليغانيس</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الدوري الألماني -->
+        <div class="league">
+            <div class="league-header">
+                <h2>الدوري الألماني (البوندسليغا)</h2>
+            </div>
+            <div class="matches-list">
+                <div class="match-item">
+                    <div class="team">لايبزيغ</div>
+                    <div class="time" id="match7-time"></div>
+                    <div class="team">هايدنهايم</div>
+                </div>
+                <div class="match-item">
+                    <div class="team">بايرن ميونخ</div>
+                    <div class="time" id="match8-time"></div>
+                    <div class="team">آينتراخت فرانكفورت</div>
+                </div>
+                <div class="match-item">
+                    <div class="team">هوفنهايم</div>
+                    <div class="time" id="match9-time"></div>
+                    <div class="team">شتوتغارت</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // دالة للحصول على الموقع الجغرافي من خلال IP
+        fetch('http://ip-api.com/json')
+            .then(response => response.json())
+            .then(data => {
+                const userTimeZone = data.timezone;
+
+                // دالة لتحويل التوقيت إلى المنطقة الزمنية للمستخدم مع استخدام الأرقام الإنجليزية
+                function getLocalTime(timeStr, timezone) {
+                    const date = new Date(`1970-01-01T${timeStr}Z`);
+                    const options = { timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false, numberingSystem: 'latn' };
+                    return date.toLocaleTimeString('en-US', options).replace(/[\u0660-\u0669\u06F0-\u06F9]/g, (char) => {
+                        return String.fromCharCode(char.charCodeAt(0) - 1584);
+                    });
+                }
+
+                // تحديد التوقيت للمباريات بناءً على المنطقة الزمنية المحلية للمستخدم
+                document.getElementById('match1-time').textContent = getLocalTime('14:00', userTimeZone);
+                document.getElementById('match2-time').textContent = getLocalTime('16:30', userTimeZone);
+                document.getElementById('match3-time').textContent = getLocalTime('13:00', userTimeZone);
+                document.getElementById('match4-time').textContent = getLocalTime('15:15', userTimeZone);
+                document.getElementById('match5-time').textContent = getLocalTime('17:30', userTimeZone);
+                document.getElementById('match6-time').textContent = getLocalTime('20:00', userTimeZone);
+                document.getElementById('match7-time').textContent = getLocalTime('14:30', userTimeZone);
+                document.getElementById('match8-time').textContent = getLocalTime('16:30', userTimeZone);
+                document.getElementById('match9-time').textContent = getLocalTime('18:30', userTimeZone);
+            })
+            .catch(error => console.error('Error fetching location data:', error));
+    </script>
+</body>
+</html>
