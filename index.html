@@ -1,196 +1,422 @@
-<!DOCTYPE html>
-<html lang="ar">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جدول مباريات اليوم</title>
-    <style>
-        :root {
-            --primary-color: #1e3a5f;
-            --secondary-color: #e74c3c;
-            --background-color: #000000;
-            --text-color: #ffffff;
-        }
+<!DOCTYPE html>  
+<html lang="ar" dir="rtl">  
+<head>  
+    <meta charset="UTF-8">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">  
+    <title>مباريات اليوم - جدول المباريات الرياضية</title>  
+    <style>  
+        :root {  
+            --primary-color: #2563eb;  
+            --secondary-color: #dc2626;  
+            --background: #0a0a0a;  
+            --surface: #1a1a1a;  
+            --text-primary: #f5f5f5;  
+            --text-secondary: #a3a3a3;  
+            --font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;  
+        }  * {  
+        margin: 0;  
+        padding: 0;  
+        box-sizing: border-box;  
+    }  
 
-        body {
-            font-family: 'Cairo', sans-serif;
-            direction: rtl;
-            padding: 20px;
-            background: var(--background-color);
-            color: var(--text-color);
-        }
+    body {  
+        font-family: var(--font-family);  
+        background: var(--background);  
+        color: var(--text-primary);  
+        line-height: 1.6;  
+        -webkit-user-select: none;  
+        -moz-user-select: none;  
+        -ms-user-select: none;  
+        user-select: none;  
+    }  
 
-        .container {
-            max-width: 1000px;
-            margin: auto;
-        }
+    .container {  
+        max-width: 1200px;  
+        margin: 0 auto;  
+        padding: 2rem 1.5rem;  
+    }  
 
-        h1 {
-            text-align: center;
-            color: var(--primary-color);
-            padding-bottom: 10px;
-            border-bottom: 3px solid var(--secondary-color);
-            margin-bottom: 30px;
-        }
+    .header {  
+        text-align: center;  
+        margin-bottom: 3rem;  
+        position: relative;  
+    }  
 
-        .league {
-            background: #1c1c1c;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
+    .header h1 {  
+        font-size: 2.5rem;  
+        color: var(--text-primary);  
+        margin-bottom: 0.5rem;  
+        display: flex;  
+        align-items: center;  
+        justify-content: center;  
+        gap: 0.75rem;  
+    }  
 
-        .league-header {
-            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+    .league-card {  
+        background: var(--surface);  
+        border-radius: 1.25rem;  
+        margin-bottom: 2rem;  
+        overflow: hidden;  
+        transition: transform 0.2s ease;  
+        border: 1px solid rgba(255, 255, 255, 0.1);  
+    }  
 
-        .matches-list {
-            padding: 20px;
-        }
+    .league-card:hover {  
+        transform: translateY(-2px);  
+    }  
 
-        .match-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 15px;
-            margin: 10px 0;
-            background: #2c2c2c;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
+    .league-header {  
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));  
+        padding: 1.25rem 2rem;  
+        position: relative;  
+        display: flex;  
+        align-items: center;  
+        gap: 1rem;  
+    }  
 
-        .match-item:hover {
-            transform: scale(1.02);
-        }
+    .league-header::after {  
+        content: '';  
+        position: absolute;  
+        bottom: 0;  
+        left: 0;  
+        right: 0;  
+        height: 4px;  
+        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));  
+    }  
 
-        .team {
-            font-size: 1.2em;
-            font-weight: bold;
-            text-align: center;
-            margin-bottom: 0px;
-        }
+    .league-title {  
+        font-size: 1.5rem;  
+        font-weight: 700;  
+        color: white;  
+    }  
 
-        .time {
-            background: var(--secondary-color);
-            color: white;
-            padding: 10px 15px;
-            border-radius: 20px;
-            font-size: 1em;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🗓 جدول مباريات اليوم</h1>
+    .match-list {  
+        padding: 1.5rem;  
+        display: grid;  
+        gap: 1rem;  
+    }  
 
-        <!-- الدوري الإنجليزي الممتاز -->
-        <div class="league">
-            <div class="league-header">
-                <h2>الدوري الإنجليزي الممتاز</h2>
-            </div>
-            <div class="matches-list">
-                <div class="match-item">
-                    <div class="team">نيوكاسل يونايتد</div>
-                    <div class="time" id="match1-time"></div>
-                    <div class="team">نوتينغهام فورست</div>
-                </div>
-                <div class="match-item">
-                    <div class="team">مانشستر سيتي</div>
-                    <div class="time" id="match2-time"></div>
-                    <div class="team">ليفربول</div>
-                </div>
-            </div>
-        </div>
+    .match-card {  
+        display: flex;  
+        align-items: center;  
+        justify-content: center;  
+        padding: 1.25rem;  
+        background: rgba(255, 255, 255, 0.03);  
+        border-radius: 0.75rem;  
+        transition: all 0.2s ease;  
+        position: relative;  
+        pointer-events: none;  
+        flex-direction: column;  
+        text-align: center;  
+    }  
 
-        <!-- الدوري الإسباني -->
-        <div class="league">
-            <div class="league-header">
-                <h2>الدوري الإسباني (لاليغا)</h2>
-            </div>
-            <div class="matches-list">
-                <div class="match-item">
-                    <div class="team">أتلتيك بلباو</div>
-                    <div class="time" id="match3-time"></div>
-                    <div class="team">بلد الوليد</div>
-                </div>
-                <div class="match-item">
-                    <div class="team">ريال مدريد</div>
-                    <div class="time" id="match4-time"></div>
-                    <div class="team">جيرونا</div>
-                </div>
-                <div class="match-item">
-                    <div class="team">خيتافي</div>
-                    <div class="time" id="match5-time"></div>
-                    <div class="team">ريال بيتيس</div>
-                </div>
-                <div class="match-item">
-                    <div class="team">ريال سوسييداد</div>
-                    <div class="time" id="match6-time"></div>
-                    <div class="team">ليغانيس</div>
-                </div>
-            </div>
-        </div>
+    .match-card:hover {  
+        background: rgba(255, 255, 255, 0.05);  
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  
+    }  
 
-        <!-- الدوري الألماني -->
-        <div class="league">
-            <div class="league-header">
-                <h2>الدوري الألماني (البوندسليغا)</h2>
-            </div>
-            <div class="matches-list">
-                <div class="match-item">
-                    <div class="team">لايبزيغ</div>
-                    <div class="time" id="match7-time"></div>
-                    <div class="team">هايدنهايم</div>
-                </div>
-                <div class="match-item">
-                    <div class="team">بايرن ميونخ</div>
-                    <div class="time" id="match8-time"></div>
-                    <div class="team">آينتراخت فرانكفورت</div>
-                </div>
-                <div class="match-item">
-                    <div class="team">هوفنهايم</div>
-                    <div class="time" id="match9-time"></div>
-                    <div class="team">شتوتغارت</div>
-                </div>
-            </div>
-        </div>
-    </div>
+    .teams {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* تم تعديله */
+    gap: 2rem;
+    flex-grow: 1;
+    flex-wrap: nowrap; /* تم إضافته */
+}
 
-    <script>
-        // دالة للحصول على الموقع الجغرافي من خلال IP
-        fetch('http://ip-api.com/json')
-            .then(response => response.json())
-            .then(data => {
-                const userTimeZone = data.timezone;
+.team {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* تم إضافته */
+    gap: 0.75rem;
+    font-weight: 500;
+    flex: 1; /* تم إضافته */
+    text-align: center; /* تم إضافته */
+}
 
-                // دالة لتحويل التوقيت إلى المنطقة الزمنية للمستخدم مع استخدام الأرقام الإنجليزية
-                function getLocalTime(timeStr, timezone) {
-                    const date = new Date(`1970-01-01T${timeStr}Z`);
-                    const options = { timeZone: timezone, hour: '2-digit', minute: '2-digit', hour12: false, numberingSystem: 'latn' };
-                    return date.toLocaleTimeString('en-US', options).replace(/[\u0660-\u0669\u06F0-\u06F9]/g, (char) => {
-                        return String.fromCharCode(char.charCodeAt(0) - 1584);
-                    });
-                }
+.vs {
+    color: var(--text-secondary);
+    font-weight: 700;
+    padding: 0 1rem;
+    flex: 0 0 auto; /* تم إضافته */
+}
 
-                // تحديد التوقيت للمباريات بناءً على المنطقة الزمنية المحلية للمستخدم
-                document.getElementById('match1-time').textContent = getLocalTime('14:00', userTimeZone);
-                document.getElementById('match2-time').textContent = getLocalTime('16:30', userTimeZone);
-                document.getElementById('match3-time').textContent = getLocalTime('13:00', userTimeZone);
-                document.getElementById('match4-time').textContent = getLocalTime('15:15', userTimeZone);
-                document.getElementById('match5-time').textContent = getLocalTime('17:30', userTimeZone);
-                document.getElementById('match6-time').textContent = getLocalTime('20:00', userTimeZone);
-                document.getElementById('match7-time').textContent = getLocalTime('14:30', userTimeZone);
-                document.getElementById('match8-time').textContent = getLocalTime('16:30', userTimeZone);
-                document.getElementById('match9-time').textContent = getLocalTime('18:30', userTimeZone);
-            })
-            .catch(error => console.error('Error fetching location data:', error));
-    </script>
-</body>
+    .team::before {  
+        content: none !important;  
+    }  
+
+    .team-logo {  
+        width: 30px;  
+        height: 30px;  
+        border-radius: 50%;  
+        background-color: #555; /* لون خلفية الشعار */  
+        display: flex;  
+        align-items: center;  
+        justify-content: center;  
+        font-size: 14px;  
+        color: #fff;  
+    }  
+
+    .vs {  
+        color: var(--text-secondary);  
+        font-weight: 700;  
+        padding: 0 1rem;  
+    }  
+
+    .time-badge {  
+        background: rgba(255, 0, 0, 0.2); /* لون خلفية أحمر مطفى */  
+        color: var(--text-primary);  
+        padding: 0.5rem 1.25rem;  
+        border-radius: 2rem;  
+        font-weight: 600;  
+        display: flex;  
+        align-items: center;  
+        gap: 0.5rem;  
+        backdrop-filter: blur(4px);  
+        border: 1px solid rgba(255, 255, 255, 0.15);  
+        margin-top: 1rem;  
+        justify-content: center;  
+    }  
+
+    @media (max-width: 768px) {  
+        .container {  
+            padding: 1.5rem 1rem;  
+        }  
+
+        .header h1 {  
+            font-size: 2rem;  
+        }  
+
+        .match-card {  
+            flex-direction: column;  
+            align-items: stretch;  
+            gap: 1rem;  
+        }  
+
+        .teams {  
+            justify-content: center;  
+            flex-wrap: wrap;  
+            gap: 1rem;  
+        }  
+
+        .team {  
+            flex-direction: column;  
+            text-align: center;  
+        }  
+    }  
+</style>
+
+</head>  
+<body>  
+    <div class="container">  <!-- الدوري الإنجليزي الممتاز -->  
+    <div class="league-card">  
+        <div class="league-header">  
+            <h2 class="league-title">🏴󠁧󠁢󠁥󠁮󠁧󠁿 الدوري الإنجليزي الممتاز</h2>  
+        </div>  
+        <div class="match-list">  
+            <div class="match-card">  
+                <div class="teams">  
+                    <div class="team">  
+                        <div class="team-logo">NU</div>  
+                        نيوكاسل يونايتد  
+                    </div>  
+                    <div class="vs">VS</div>  
+                    <div class="team">  
+                        <div class="team-logo">NF</div>  
+                        نوتينغهام فورست  
+                    </div>  
+                </div>  
+                <div class="time-badge" id="match1-time"></div>  
+            </div>  
+            <div class="match-card">  
+                <div class="teams">  
+                    <div class="team">  
+                        <div class="team-logo">MC</div>  
+                        مانشستر سيتي  
+                    </div>  
+                    <div class="vs">VS</div>  
+                    <div class="team">  
+                        <div class="team-logo">LV</div>  
+                        ليفربول  
+                    </div>  
+                </div>  
+                <div class="time-badge" id="match2-time"></div>  
+            </div>  
+        </div>  
+    </div>  
+
+    <!-- الدوري الإسباني -->  
+    <div class="league-card">  
+        <div class="league-header">  
+            <h2 class="league-title">🇪🇸 الدوري الإسباني (لاليغا)</h2>  
+        </div>  
+        <div class="match-list">  
+            <div class="match-card">  
+                <div class="teams">  
+                    <div class="team">  
+                        <div class="team-logo">AB</div>  
+                        أتلتيك بلباو  
+                    </div>  
+                    <div class="vs">VS</div>  
+                    <div class="team">  
+                        <div class="team-logo">BV</div>  
+                        بلد الوليد  
+                    </div>  
+                </div>  
+                <div class="time-badge" id="match3-time"></div>  
+            </div>  
+            <div class="match-card">  
+                <div class="teams">  
+                    <div class="team">  
+                        <div class="team-logo">RM</div>  
+                        ريال مدريد  
+                    </div>  
+                    <div class="vs">VS</div>  
+                    <div class="team">  
+                        <div class="team-logo">GE</div>  
+                        جيرونا  
+                    </div>  
+                </div>  
+                <div class="time-badge" id="match4-time"></div>  
+            </div>  
+            <div class="match-card">  
+                <div class="teams">  
+                    <div class="team">  
+                        <div class="team-logo">GE</div>  
+                        خيتافي  
+                    </div>  
+                    <div class="vs">VS</div>  
+                    <div class="team">  
+                        <div class="team-logo">RB</div>  
+                        ريال بيتيس  
+                    </div>  
+                </div>  
+                <div class="time-badge" id="match5-time"></div>  
+            </div>  
+            <div class="match-card">  
+                <div class="teams">  
+                    <div class="team">  
+                        <div class="team-logo">RS</div>  
+                        ريال سوسييداد  
+                    </div>  
+                    <div class="vs">VS</div>  
+                    <div class="team">  
+                        <div class="team-logo">LE</div>  
+                        ليغانيس  
+                    </div>  
+                </div>  
+                <div class="time-badge" id="match6-time"></div>  
+            </div>  
+        </div>  
+    </div>  
+
+    <!-- الدوري الألماني -->  
+    <div class="league-card">  
+        <div class="league-header">  
+            <h2 class="league-title">🇩🇪 الدوري الألماني (البوندسليغا)</h2>  
+        </div>  
+        <div class="match-list">  
+            <div class="match-card">  
+                <div class="teams">  
+                    <div class="team">  
+                        <div class="team-logo">LP</div>  
+                        لايبزيغ  
+                    </div>  
+                    <div class="vs">VS</div>  
+                    <div class="team">  
+                        <div class="team-logo">HD</div>  
+                        هايدنهايم  
+                    </div>  
+                </div>  
+                <div class="time-badge" id="match7-time"></div>  
+            </div>  
+            <div class="match-card">  
+                <div class="teams">  
+                    <div class="team">  
+                        <div class="team-logo">BM</div>  
+                        بايرن ميونخ  
+                    </div>  
+                    <div class="vs">VS</div>  
+                    <div class="team">  
+                        <div class="team-logo">EF</div>  
+                        آينتراخت فرانكفورت  
+                    </div>  
+                </div>  
+                <div class="time-badge" id="match8-time"></div>  
+            </div>  
+            <div class="match-card">  
+                <div class="teams">  
+                    <div class="team">  
+                        <div class="team-logo">HO</div>  
+                        هوفنهايم  
+                    </div>  
+                    <div class="vs">VS</div>  
+                    <div class="team">  
+                        <div class="team-logo">ST</div>  
+                        شتوتغارت  
+                    </div>  
+                </div>  
+                <div class="time-badge" id="match9-time"></div>  
+            </div>  
+        </div>  
+    </div>  
+</div>  
+
+<script>  
+    const fetchUserTimezone = async () => {  
+        try {  
+            const response = await fetch('https://ipapi.co/json/');  
+            const data = await response.json();  
+            return data.timezone;  
+        } catch (error) {  
+            console.error('Error fetching timezone:', error);  
+            return 'UTC';  
+        }  
+    };  
+
+    const formatMatchTime = (timeStr, timeZone) => {  
+        const [hours, minutes] = timeStr.split(':');  
+        const date = new Date();  
+        date.setUTCHours(parseInt(hours), parseInt(minutes));  
+          
+        return date.toLocaleTimeString('en-GB', {  
+            timeZone,  
+            hour: 'numeric',  
+            minute: '2-digit',  
+            hour12: true  
+        }).replace('AM', 'ص').replace('PM', 'م');  
+    };  
+
+    const initApp = async () => {  
+        const timeZone = await fetchUserTimezone();  
+          
+        const matchTimes = {  
+            'match1-time': '14:00',  
+            'match2-time': '16:30',  
+            'match3-time': '13:00',  
+            'match4-time': '15:15',  
+            'match5-time': '17:30',  
+            'match6-time': '20:00',  
+            'match7-time': '14:30',  
+            'match8-time': '16:30',  
+            'match9-time': '18:30'  
+        };  
+
+        Object.entries(matchTimes).forEach(([id, time]) => {  
+            const element = document.getElementById(id);  
+            if(element) {  
+                element.textContent = formatMatchTime(time, timeZone);  
+            }  
+        });  
+    };  
+
+    document.addEventListener('contextmenu', function(e) {  
+        e.preventDefault();  
+        return false;  
+    });  
+
+    initApp();  
+</script>
+
+</body>  
 </html>
