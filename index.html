@@ -1,422 +1,1233 @@
-<!DOCTYPE html>  
-<html lang="ar" dir="rtl">  
-<head>  
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">  
-    <title>مباريات اليوم - جدول المباريات الرياضية</title>  
-    <style>  
-        :root {  
-            --primary-color: #2563eb;  
-            --secondary-color: #dc2626;  
-            --background: #0a0a0a;  
-            --surface: #1a1a1a;  
-            --text-primary: #f5f5f5;  
-            --text-secondary: #a3a3a3;  
-            --font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;  
-        }  * {  
-        margin: 0;  
-        padding: 0;  
-        box-sizing: border-box;  
-    }  
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مباريات كرة القدم</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* أنماط الشريط العلوي */
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+        }
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #fff;
+            border-radius: 25px;
+            background-color: #222;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+        .search-input::placeholder {
+            color: #aaa;
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            width: 100%;
+        }
+        .button {
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            border: 2px solid darkred;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.2);
+            background-blend-mode: overlay;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        .button:hover {
+            transform: scale(1.05);
+            box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.2);
+        }
+        .team-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .logo {
+            width: auto;
+            height: 60px;
+        }
+        .team-name {
+            font-size: 17px;
+            font-weight: bold;
+            margin-top: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            border: 1px solid #000;
+            padding: 3px;
+            text-align: center;
+        }
+        .match-info {
+            font-size: 13px;
+            margin-top: 7px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            border: 1px solid #000;
+            padding: 3px;
+            text-align: center;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.8); }
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+            flex-direction: column;
+            overflow: hidden;
+            
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        .modal.hide {
+            animation: fadeOut 0.3s ease-in forwards;
+        }
+        .modal iframe {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            pointer-events: auto;
+        }
+        .modal .close-area {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 90%;
+            height: 15%;
+            background-color: rgba(0, 0, 0, 0);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+        }
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        .dropdown {
+            margin-left: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: #222;
+            color: white;
+            cursor: pointer;
+            border: 2px solid darkred;
+            border-radius: 25px;
+            width: 90px;
+        }
+        
+        
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+        }
 
-    body {  
-        font-family: var(--font-family);  
-        background: var(--background);  
-        color: var(--text-primary);  
-        line-height: 1.6;  
-        -webkit-user-select: none;  
-        -moz-user-select: none;  
-        -ms-user-select: none;  
-        user-select: none;  
-    }  
+        .popup button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #444;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-    .container {  
-        max-width: 1200px;  
-        margin: 0 auto;  
-        padding: 2rem 1.5rem;  
-    }  
+        .popup button:hover {
+            background-color: #555;
+        }
+        .close-btn {
+            position: absolute;
+            top: 130px;
+            right: 0px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        
+        
+        
+        .chat-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 600px;
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+        }
 
-    .header {  
-        text-align: center;  
-        margin-bottom: 3rem;  
-        position: relative;  
-    }  
+        .chat-popup iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 10px;
+        }
 
-    .header h1 {  
-        font-size: 2.5rem;  
-        color: var(--text-primary);  
-        margin-bottom: 0.5rem;  
-        display: flex;  
-        align-items: center;  
-        justify-content: center;  
-        gap: 0.75rem;  
-    }  
+        .close-chat-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: red;
+            font-size: 50px;
+            cursor: pointer;
+        }
+        
+        
+        .matches-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%;
+            max-width: 600px;
+            background-color: #222;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.2);
+            z-index: 1000;
+        }
 
-    .league-card {  
-        background: var(--surface);  
-        border-radius: 1.25rem;  
-        margin-bottom: 2rem;  
-        overflow: hidden;  
-        transition: transform 0.2s ease;  
-        border: 1px solid rgba(255, 255, 255, 0.1);  
-    }  
+        .matches-popup iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 10px;
+        }
 
-    .league-card:hover {  
-        transform: translateY(-2px);  
-    }  
+        .close-matches-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: red;
+            font-size: 50px;
+            cursor: pointer;
+        }
+        .container {
+    margin-bottom: 80px;
+}
+        
+        
+        
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px;
+            background: black;
+            border-top: 2px solid darkred;
+            z-index: 999;
+            transition: transform 0.3s ease;
+        }
 
-    .league-header {  
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));  
-        padding: 1.25rem 2rem;  
-        position: relative;  
-        display: flex;  
-        align-items: center;  
-        gap: 1rem;  
-    }  
+        .nav-bar.visible {
+            transform: translateY(0);
+        }
 
-    .league-header::after {  
-        content: '';  
-        position: absolute;  
-        bottom: 0;  
-        left: 0;  
-        right: 0;  
-        height: 4px;  
-        background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));  
-    }  
+        .nav-bar.hidden {
+            transform: translateY(100%);
+        }
 
-    .league-title {  
-        font-size: 1.5rem;  
-        font-weight: 700;  
-        color: white;  
-    }  
+        .nav-btn {
+            flex: 1;
+            min-width: 90px;
+            max-width: 120px;
+            padding: 12px 5px;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #2a2a2a, black);
+            color: #fff;
+            border: 2px solid darkred;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-weight: bold;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
 
-    .match-list {  
-        padding: 1.5rem;  
-        display: grid;  
-        gap: 1rem;  
-    }  
+        .nav-btn i {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
 
-    .match-card {  
-        display: flex;  
-        align-items: center;  
-        justify-content: center;  
-        padding: 1.25rem;  
-        background: rgba(255, 255, 255, 0.03);  
-        border-radius: 0.75rem;  
-        transition: all 0.2s ease;  
-        position: relative;  
-        pointer-events: none;  
-        flex-direction: column;  
-        text-align: center;  
-    }  
+        @media (min-width: 480px) {
+            .nav-btn {
+                font-size: 14px;
+                min-width: 100px;
+            }
+        }
 
-    .match-card:hover {  
-        background: rgba(255, 255, 255, 0.05);  
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);  
-    }  
+        @media (orientation: landscape) {
+            .nav-bar {
+                padding: 8px 10px;
+            }
+            .nav-btn {
+                font-size: 12px;
+                padding: 8px 5px;
+            }
+            .nav-btn i {
+                font-size: 14px;
+            }
+        }
 
-    .teams {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* تم تعديله */
-    gap: 2rem;
-    flex-grow: 1;
-    flex-wrap: nowrap; /* تم إضافته */
+        /* بقية الأنماط كما هي مع تعديلات بسيطة */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+            user-select: none;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+            gap: 10px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid darkred;
+            border-radius: 30px;
+            background-color: #222;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            border-color: #666;
+        }
+        
+        
+        
+        
+        .bein-popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80%;
+    max-width: 600px;
+    background-color: #222;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(255, 255, 255, 0.2);
+    z-index: 1000;
 }
 
-.team {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* تم إضافته */
-    gap: 0.75rem;
-    font-weight: 500;
-    flex: 1; /* تم إضافته */
-    text-align: center; /* تم إضافته */
+.bein-popup iframe {
+    width: 100%;
+    height: 400px;
+    border: none;
+    border-radius: 10px;
 }
 
-.vs {
-    color: var(--text-secondary);
-    font-weight: 700;
-    padding: 0 1rem;
-    flex: 0 0 auto; /* تم إضافته */
+.close-bein-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    color: red;
+    font-size: 50px;
+    cursor: pointer;
 }
 
-    .team::before {  
-        content: none !important;  
-    }  
 
-    .team-logo {  
-        width: 30px;  
-        height: 30px;  
-        border-radius: 50%;  
-        background-color: #555; /* لون خلفية الشعار */  
-        display: flex;  
-        align-items: center;  
-        justify-content: center;  
-        font-size: 14px;  
-        color: #fff;  
-    }  
 
-    .vs {  
-        color: var(--text-secondary);  
-        font-weight: 700;  
-        padding: 0 1rem;  
-    }  
 
-    .time-badge {  
-        background: rgba(255, 0, 0, 0.2); /* لون خلفية أحمر مطفى */  
-        color: var(--text-primary);  
-        padding: 0.5rem 1.25rem;  
-        border-radius: 2rem;  
-        font-weight: 600;  
-        display: flex;  
-        align-items: center;  
-        gap: 0.5rem;  
-        backdrop-filter: blur(4px);  
-        border: 1px solid rgba(255, 255, 255, 0.15);  
-        margin-top: 1rem;  
-        justify-content: center;  
-    }  
+        /* بقية الأنماط الأصلية... */
+        /* ... (ابقى على الأنماط الحالية كما هي) ... */
+        
+    </style>
+</head>
+<body>
+    <!-- شريط التنقل الجديد -->
+    <nav class="nav-bar">
+        <button class="nav-btn" id="beinBtn">
+            <i class="fas fa-tv"></i>
+            BeIN Sports
+        </button>
+        <button class="nav-btn" id="chatBtn">
+            <i class="fas fa-comments"></i>
+            Chat
+        </button>
+        <button class="nav-btn" id="matchesBtn">
+            <i class="fas fa-futbol"></i>
+            المباريات
+        </button>
+    </nav>
 
-    @media (max-width: 768px) {  
-        .container {  
-            padding: 1.5rem 1rem;  
-        }  
+    <div class="search-bar">
+        <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن مباراة...">
+        <select id="tournamentFilter" class="dropdown">
+            <option value="">كل البطولات</option>
+            <option value="دوري الأبطال">دوري الأبطال</option>
+            <option value="الدوري الإسباني">الدوري الإسباني</option>
+            <option value="كأس العالم">كأس العالم</option>
+            <option value="الدوري الإنجليزي">الدوري الإنجليزي</option>
+            <option value="أمم أوروبا">أمم أوروبا</option>
+            <option value="كوبا أمريكا">كوبا أمريكا</option>
+            <option value="كأس العالم للأندية">كأس العالم للأندية</option>
+        </select>
+    </div>
 
-        .header h1 {  
-            font-size: 2rem;  
-        }  
+    <!-- بقية العناصر كما هي -->
+    <div class="container" id="matchesContainer"></div>
 
-        .match-card {  
-            flex-direction: column;  
-            align-items: stretch;  
-            gap: 1rem;  
-        }  
+    <div class="modal" id="videoModal">
+        <iframe id="videoPlayer" allow="autoplay; fullscreen" allowfullscreen></iframe>
+        <div class="close-area"></div>
+    </div>
 
-        .teams {  
-            justify-content: center;  
-            flex-wrap: wrap;  
-            gap: 1rem;  
-        }  
+    <div class="popup" id="popup">
+        <button class="close-btn" id="closePopup">×</button>
+        <button id="firstHalf">الشوط الأول</button>
+        <button id="secondHalf">الشوط الثاني</button>
+    </div>
+    <div class="bein-popup" id="beinPopup">
+    <button class="close-bein-btn" id="closeBeinPopup">×</button>
+    <iframe src="https://var-web.github.io/app/"></iframe>
+</div>
 
-        .team {  
-            flex-direction: column;  
-            text-align: center;  
-        }  
-    }  
-</style>
+    <div class="chat-popup" id="chatPopup">
+        <button class="close-chat-btn" id="closeChatPopup">×</button>
+        <iframe src="https://y99.in/rw/2043983"></iframe>
+    </div>
 
-</head>  
-<body>  
-    <div class="container">  <!-- الدوري الإنجليزي الممتاز -->  
-    <div class="league-card">  
-        <div class="league-header">  
-            <h2 class="league-title">🏴󠁧󠁢󠁥󠁮󠁧󠁿 الدوري الإنجليزي الممتاز</h2>  
-        </div>  
-        <div class="match-list">  
-            <div class="match-card">  
-                <div class="teams">  
-                    <div class="team">  
-                        <div class="team-logo">NU</div>  
-                        نيوكاسل يونايتد  
-                    </div>  
-                    <div class="vs">VS</div>  
-                    <div class="team">  
-                        <div class="team-logo">NF</div>  
-                        نوتينغهام فورست  
-                    </div>  
-                </div>  
-                <div class="time-badge" id="match1-time"></div>  
-            </div>  
-            <div class="match-card">  
-                <div class="teams">  
-                    <div class="team">  
-                        <div class="team-logo">MC</div>  
-                        مانشستر سيتي  
-                    </div>  
-                    <div class="vs">VS</div>  
-                    <div class="team">  
-                        <div class="team-logo">LV</div>  
-                        ليفربول  
-                    </div>  
-                </div>  
-                <div class="time-badge" id="match2-time"></div>  
-            </div>  
-        </div>  
-    </div>  
+    <div class="matches-popup" id="matchesPopup">
+        <button class="close-matches-btn" id="closeMatchesPopup">×</button>
+        <iframe src="https://www.365scores.com/ar"></iframe>
+    </div>
 
-    <!-- الدوري الإسباني -->  
-    <div class="league-card">  
-        <div class="league-header">  
-            <h2 class="league-title">🇪🇸 الدوري الإسباني (لاليغا)</h2>  
-        </div>  
-        <div class="match-list">  
-            <div class="match-card">  
-                <div class="teams">  
-                    <div class="team">  
-                        <div class="team-logo">AB</div>  
-                        أتلتيك بلباو  
-                    </div>  
-                    <div class="vs">VS</div>  
-                    <div class="team">  
-                        <div class="team-logo">BV</div>  
-                        بلد الوليد  
-                    </div>  
-                </div>  
-                <div class="time-badge" id="match3-time"></div>  
-            </div>  
-            <div class="match-card">  
-                <div class="teams">  
-                    <div class="team">  
-                        <div class="team-logo">RM</div>  
-                        ريال مدريد  
-                    </div>  
-                    <div class="vs">VS</div>  
-                    <div class="team">  
-                        <div class="team-logo">GE</div>  
-                        جيرونا  
-                    </div>  
-                </div>  
-                <div class="time-badge" id="match4-time"></div>  
-            </div>  
-            <div class="match-card">  
-                <div class="teams">  
-                    <div class="team">  
-                        <div class="team-logo">GE</div>  
-                        خيتافي  
-                    </div>  
-                    <div class="vs">VS</div>  
-                    <div class="team">  
-                        <div class="team-logo">RB</div>  
-                        ريال بيتيس  
-                    </div>  
-                </div>  
-                <div class="time-badge" id="match5-time"></div>  
-            </div>  
-            <div class="match-card">  
-                <div class="teams">  
-                    <div class="team">  
-                        <div class="team-logo">RS</div>  
-                        ريال سوسييداد  
-                    </div>  
-                    <div class="vs">VS</div>  
-                    <div class="team">  
-                        <div class="team-logo">LE</div>  
-                        ليغانيس  
-                    </div>  
-                </div>  
-                <div class="time-badge" id="match6-time"></div>  
-            </div>  
-        </div>  
-    </div>  
+    <script>
+        // إضافة الأحداث للشريط العلوي
+        // عدل هذا الجزء من الكود
+        document.getElementById('beinBtn').addEventListener('click', () => {
+          document.getElementById('beinPopup').style.display = 'block';
+        });
+        
+        // أضف هذا الجزء لإغلاق الـ popup
+        document.getElementById('closeBeinPopup').addEventListener('click', () => {
+          document.getElementById('beinPopup').style.display = 'none';
+        });
 
-    <!-- الدوري الألماني -->  
-    <div class="league-card">  
-        <div class="league-header">  
-            <h2 class="league-title">🇩🇪 الدوري الألماني (البوندسليغا)</h2>  
-        </div>  
-        <div class="match-list">  
-            <div class="match-card">  
-                <div class="teams">  
-                    <div class="team">  
-                        <div class="team-logo">LP</div>  
-                        لايبزيغ  
-                    </div>  
-                    <div class="vs">VS</div>  
-                    <div class="team">  
-                        <div class="team-logo">HD</div>  
-                        هايدنهايم  
-                    </div>  
-                </div>  
-                <div class="time-badge" id="match7-time"></div>  
-            </div>  
-            <div class="match-card">  
-                <div class="teams">  
-                    <div class="team">  
-                        <div class="team-logo">BM</div>  
-                        بايرن ميونخ  
-                    </div>  
-                    <div class="vs">VS</div>  
-                    <div class="team">  
-                        <div class="team-logo">EF</div>  
-                        آينتراخت فرانكفورت  
-                    </div>  
-                </div>  
-                <div class="time-badge" id="match8-time"></div>  
-            </div>  
-            <div class="match-card">  
-                <div class="teams">  
-                    <div class="team">  
-                        <div class="team-logo">HO</div>  
-                        هوفنهايم  
-                    </div>  
-                    <div class="vs">VS</div>  
-                    <div class="team">  
-                        <div class="team-logo">ST</div>  
-                        شتوتغارت  
-                    </div>  
-                </div>  
-                <div class="time-badge" id="match9-time"></div>  
-            </div>  
-        </div>  
-    </div>  
-</div>  
+        document.getElementById('chatBtn').addEventListener('click', () => {
+            document.getElementById('chatPopup').style.display = 'block';
+        });
 
-<script>  
-    const fetchUserTimezone = async () => {  
-        try {  
-            const response = await fetch('https://ipapi.co/json/');  
-            const data = await response.json();  
-            return data.timezone;  
-        } catch (error) {  
-            console.error('Error fetching timezone:', error);  
-            return 'UTC';  
-        }  
-    };  
+        document.getElementById('matchesBtn').addEventListener('click', () => {
+            document.getElementById('matchesPopup').style.display = 'block';
+        });
+        
+        document.addEventListener('copy', (event) => {
+            event.preventDefault();
+            alert("نسخ غير مسموح به على هذه الصفحة");
+        });
 
-    const formatMatchTime = (timeStr, timeZone) => {  
-        const [hours, minutes] = timeStr.split(':');  
-        const date = new Date();  
-        date.setUTCHours(parseInt(hours), parseInt(minutes));  
-          
-        return date.toLocaleTimeString('en-GB', {  
-            timeZone,  
-            hour: 'numeric',  
-            minute: '2-digit',  
-            hour12: true  
-        }).replace('AM', 'ص').replace('PM', 'م');  
-    };  
+        const matches = [
 
-    const initApp = async () => {  
-        const timeZone = await fetchUserTimezone();  
-          
-        const matchTimes = {  
-            'match1-time': '14:00',  
-            'match2-time': '16:30',  
-            'match3-time': '13:00',  
-            'match4-time': '15:15',  
-            'match5-time': '17:30',  
-            'match6-time': '20:00',  
-            'match7-time': '14:30',  
-            'match8-time': '16:30',  
-            'match9-time': '18:30'  
-        };  
 
-        Object.entries(matchTimes).forEach(([id, time]) => {  
-            const element = document.getElementById(id);  
-            if(element) {  
-                element.textContent = formatMatchTime(time, timeZone);  
-            }  
-        });  
-    };  
 
-    document.addEventListener('contextmenu', function(e) {  
-        e.preventDefault();  
-        return false;  
-    });  
 
-    initApp();  
-</script>
 
-</body>  
+            
+            
+            {
+            teams: ["FCB", "PSG"],
+            score: "6-1",
+            tournament:" دوري الأبطال",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Paris_Saint-Germain_F.C..svg/422px-Paris_Saint-Germain_F.C..svg.png"
+                ],
+            video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+            teams: ["ARG", "FRA"],
+            score: "3-3",
+            tournament: "نهائي كأس العالم",
+            logos: [
+                    "https://cdn4.iconfinder.com/data/icons/world-flags-circular/1000/Flag_of_Argentina_-_Circle-1024.png",
+                    "https://cdn.countryflags.com/thumbs/france/flag-round-500.png"
+                ],
+            video: "http://ok.ru/videoembed/5137126853306?autoplay=1&muted=0",
+            background: "https://idsb.tmgrup.com.tr/ly/uploads/images/2022/12/20/247533.jpeg"
+            },
+          {
+            teams: ["ARG", "GER"],
+            score: "0-1",
+            tournament: "نهائي كأس العالم",
+            logos: [
+                    "https://cdn4.iconfinder.com/data/icons/world-flags-circular/1000/Flag_of_Argentina_-_Circle-1024.png",
+                    "https://cdn1.iconfinder.com/data/icons/major-world-flags-1/512/germany_flag_circle-1024.png"
+                ],
+            video: "http://ok.ru/videoembed/4092950153881?autoplay=1&muted=0",
+            background: "https://idsb.tmgrup.com.tr/ly/uploads/images/2022/12/20/247533.jpeg"
+            },
+          {
+            teams: ["RMA", "JUV"],
+            score: "4-1",
+            tournament: "نهائي دوري الأبطال",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/fr/thumb/9/9f/Logo_Juventus.svg/551px-Logo_Juventus.svg.png"
+                ],
+            video: "http://ok.ru/videoembed/290130168570?autoplay=1",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+            teams: ["RMA", "FCB"],
+            score: "4-1",
+            tournament: " الدوري الإسباني",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg"
+                ],
+            video: "http://ok.ru/videoembed/1451657267868?autoplay=1&muted=0",
+            background: "https://www.stuff.tv/wp-content/uploads/sites/2/2023/02/LaLiga-logo.png?w=1080"
+            },
+            {
+            teams: ["FCB", "BAY"],
+            score: "2-8",
+            tournament: "دوري الأبطال ",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/FC_Bayern_München_logo_(2024).svg/900px-FC_Bayern_München_logo_(2024).svg.png"
+                ],
+            video: "http://ok.ru/videoembed/1721569184421?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+          {
+            teams: ["BAR", "GER"],
+            score: "1-7",
+            tournament: " كأس العالم",
+            logos: [
+                    "https://cdn.countryflags.com/thumbs/brazil/flag-round-500.png",
+                    "https://cdn1.iconfinder.com/data/icons/major-world-flags-1/512/germany_flag_circle-1024.png"
+                ],
+            video: "http://ok.ru/videoembed/3058393484023?autoplay=1&muted=0",
+            background: "https://idsb.tmgrup.com.tr/ly/uploads/images/2022/12/20/247533.jpeg"
+            },
+          {
+            teams: ["RMA", "MAN"],
+            score: "3-1",
+            tournament: " دوري الأبطال",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/474px-Manchester_City_FC_badge.svg.png?20180205235525"
+                ],
+            video: "http://ok.ru/videoembed/3673792055842?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+            teams: ["RMA", "CHE"],
+            score: "2-3",
+            tournament: " دوري الأبطال",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/380px-Chelsea_FC.svg.png"
+                ],
+            video: "http://ok.ru/videoembed/3624076773922?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+            teams: ["ITA", "FRA"],
+            score: "1-1",
+            tournament: "نهائي كأس العالم",
+            logos: [
+                    "https://cdn.countryflags.com/thumbs/italy/flag-round-500.png",
+                    "https://cdn.countryflags.com/thumbs/france/flag-round-500.png"
+                ],
+            video: "http://ok.ru/videoembed/4930545846970?autoplay=1&muted=0",
+            background: "https://idsb.tmgrup.com.tr/ly/uploads/images/2022/12/20/247533.jpeg"
+            },
+          {
+            teams: ["ARG", "NET"],
+            score: "2-2",
+            tournament: " كأس العالم",
+            logos: [
+                    "https://cdn4.iconfinder.com/data/icons/world-flags-circular/1000/Flag_of_Argentina_-_Circle-1024.png",
+                    "https://cdn.countryflags.com/thumbs/netherlands/flag-round-500.png"
+                ],
+            video: "http://ok.ru/videoembed/4093227895422?autoplay=1&muted=0",
+            background: "https://idsb.tmgrup.com.tr/ly/uploads/images/2022/12/20/247533.jpeg"
+            },
+          {
+            teams: ["MAN", "FCB"],
+            score: "1-3",
+            tournament: " دوري الأبطال",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/474px-Manchester_City_FC_badge.svg.png?20180205235525",
+                    "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg"
+                ],
+            video: "http://ok.ru/videoembed/185468717630?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+            teams: ["BRA", "FRA"],
+            score: "0-1",
+            tournament: "كأس العالم",
+            logos: [
+                    "https://cdn.countryflags.com/thumbs/brazil/flag-round-500.png",
+                    "https://cdn.countryflags.com/thumbs/france/flag-round-500.png"
+                ],
+            video: "http://ok.ru/videoembed/2300706884343?autoplay=1&muted=0",
+            background: "https://idsb.tmgrup.com.tr/ly/uploads/images/2022/12/20/247533.jpeg"
+            },
+            {
+            teams: ["RMA", "LIV"],
+            score: "1-0",
+            tournament: "نهائي دوري الأبطال  ",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/0/0c/Liverpool_FC.svg/488px-Liverpool_FC.svg.png?20210424204353"
+                ],
+            video: "http://ok.ru/videoembed/4629129923258?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+            teams: ["MAN", "MNU"],
+            score: "6-3",
+            tournament: "الدوري الإنجليزي",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/474px-Manchester_City_FC_badge.svg.png?20180205235525",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/7/7a/Manchester_United_FC_crest.svg/444px-Manchester_United_FC_crest.svg.png?20190211132414"
+                ],
+            video: "http://ok.ru/videoembed/4096740166178?autoplay=1&muted=0",
+            background: "https://www.monotype.com/sites/default/files/2019-10/premierleague-hero-new.png"
+            },
+            {
+            teams: ["PSG", "BAY"],
+            score: "3-2",
+            tournament: " دوري الأبطال ",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Paris_Saint-Germain_F.C..svg/422px-Paris_Saint-Germain_F.C..svg.png",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/FC_Bayern_München_logo_(2024).svg/900px-FC_Bayern_München_logo_(2024).svg.png"
+                ],
+            video: "http://ok.ru/videoembed/2115016526492?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+            teams: ["RMA", "ATM"],
+            score: "1-1",
+            tournament: " نهائي دوري الأبطال",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/Atletico_Madrid_Logo_2024.svg/558px-Atletico_Madrid_Logo_2024.svg.png?20240708000437"
+                ],
+            video: "http://ok.ru/videoembed/88246651437?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+    teams: ["ESP", "ENG"],
+    score: "2-1",
+    tournament: "أمم أوروبا",
+    logos: [
+        "https://cdn.countryflags.com/thumbs/spain/flag-round-500.png",
+        "https://cdn.countryflags.com/thumbs/england/flag-round-500.png"
+    ],
+    video: "http://ok.ru/videoembed/2295777004034?autoplay=1&muted=0",
+    background: "https://editorial.uefa.com/resources/0286-1923eef9a9a5-c4379d62c53e-1000/euro_announcement_2028-32_-_16-9.png"
+},
+{
+    teams: ["ARG", "BRA"],
+    score: "1-0",
+    tournament: "كوبا أمريكا",
+    logos: [
+        "https://cdn4.iconfinder.com/data/icons/world-flags-circular/1000/Flag_of_Argentina_-_Circle-1024.png",
+        "https://cdn.countryflags.com/thumbs/brazil/flag-round-500.png"
+    ],
+    video: "http://ok.ru/videoembed/2310024464898?autoplay=1&muted=0",
+    background: "https://livesport-ott-images.ssl.cdn.cra.cz/r900xfq60/d04f6f35-c342-4c82-bacc-d01de03d6fe3.jpeg"
+},
+{
+    teams: ["ESP", "GER"],
+    score: "2-1",
+    tournament: "أمم أوروبا",
+    logos: [
+        "https://cdn.countryflags.com/thumbs/spain/flag-round-500.png",
+        "https://cdn1.iconfinder.com/data/icons/major-world-flags-1/512/germany_flag_circle-1024.png"
+    ],
+    video: "http://ok.ru/videoembed/7726286703192?autoplay=1&muted=0",
+    background: "https://editorial.uefa.com/resources/0286-1923eef9a9a5-c4379d62c53e-1000/euro_announcement_2028-32_-_16-9.png"
+},
+{
+            teams: ["MNU", "BAY"],
+            score: "2-1",
+            tournament: "نهائي دوري الأبطال ",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/7/7a/Manchester_United_FC_crest.svg/444px-Manchester_United_FC_crest.svg.png?20190211132414",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/FC_Bayern_München_logo_(2024).svg/900px-FC_Bayern_München_logo_(2024).svg.png"
+                ],
+            video: "http://ok.ru/videoembed/886491712247?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+            teams: ["DOR", "BAY"],
+            score: "1-2",
+            tournament: "نهائي دوري الأبطال ",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Borussia_Dortmund_logo.svg/285px-Borussia_Dortmund_logo.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/FC_Bayern_München_logo_(2024).svg/900px-FC_Bayern_München_logo_(2024).svg.png"
+                ],
+            video: "http://ok.ru/videoembed/4014456179353?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            
+            {
+            teams: ["RMA", "LEV"],
+            score: "2-1",
+            tournament: " نهائي دوري الأبطال",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/59/Bayer_04_Leverkusen_logo.svg/539px-Bayer_04_Leverkusen_logo.svg.png?20210511002250"
+                ],
+            video: "http://ok.ru/videoembed/881974708983?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+            teams: ["RMA", "ATM"],
+            score: "1-1",
+            tournament: " الدوري الإسباني",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/Atletico_Madrid_Logo_2024.svg/558px-Atletico_Madrid_Logo_2024.svg.png?20240708000437"
+                ],
+            video: "https://dai.ly/x9dsl2u",
+            background: "https://www.stuff.tv/wp-content/uploads/sites/2/2023/02/LaLiga-logo.png?w=1080"
+            },
+            {
+            teams: ["PSG", "MAN"],
+            score: "3-2",
+            tournament: " دوري الأبطال ",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/a/a7/Paris_Saint-Germain_F.C..svg/422px-Paris_Saint-Germain_F.C..svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/474px-Manchester_City_FC_badge.svg.png?20180205235525"
+                ],
+            video: "https://dai.ly/x9d1kmy",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+                teams: ["RMA", "MAN"],
+                score: "3-2",
+                tournament: "دوري الأبطال",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/474px-Manchester_City_FC_badge.svg.png?20180205235525"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg",
+                halves: {
+                    firstHalf: "https://dai.ly/x9e16x2",
+                    secondHalf: "https://dai.ly/x9e1aq8"
+                }
+            },
+            
+            {
+                teams: ["FCB", "MNU"],
+                score: "2-0",
+                tournament: "نهائي دوري الأبطال",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/7/7a/Manchester_United_FC_crest.svg/444px-Manchester_United_FC_crest.svg.png?20190211132414"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg",
+                halves: {
+                    firstHalf: "https://dai.ly/x89npko",
+                    secondHalf: "https://dai.ly/x89npkp"
+                }
+            },
+            
+            {
+                teams: ["BAY", "CEL"],
+                score: "2-1",
+                tournament: " دوري الأبطال",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/FC_Bayern_München_logo_(2024).svg/900px-FC_Bayern_München_logo_(2024).svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/7/71/Celtic_FC_crest.svg/800px-Celtic_FC_crest.svg.png"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg",
+                halves: {
+                    firstHalf: "https://dai.ly/x9e4l5g",
+                    secondHalf: "https://dai.ly/x9e4l5i"
+                }
+            },
+            {
+                teams: ["DOR", "SPO"],
+                score: "3-0",
+                tournament: " دوري الأبطال",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Borussia_Dortmund_logo.svg/285px-Borussia_Dortmund_logo.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/e/e1/Sporting_Clube_de_Portugal_(Logo).svg/240px-Sporting_Clube_de_Portugal_(Logo).svg.png"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg",
+                halves: {
+                    firstHalf: "https://dai.ly/x9e6ap0",
+                    secondHalf: "https://dai.ly/x9e665w"
+                }
+            },
+            {
+                teams: ["MIL", "FEY"],
+                score: "0-1",
+                tournament: " دوري الأبطال",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Logo_of_AC_Milan.svg/203px-Logo_of_AC_Milan.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Feyenoord_logo_since_2024.svg/285px-Feyenoord_logo_since_2024.svg.png"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg",
+                halves: {
+                    firstHalf: "https://dai.ly/x9e4oby",
+                    secondHalf: "https://dai.ly/x9e4mjy"
+                }
+            },
+            {
+                teams: ["LIV", "EVE"],
+                score: "2-2",
+                tournament: "  الدوري الإنجليزي",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/0/0c/Liverpool_FC.svg/488px-Liverpool_FC.svg.png?20210424204353",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/7/7c/Everton_FC_logo.svg/300px-Everton_FC_logo.svg.png"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://www.monotype.com/sites/default/files/2019-10/premierleague-hero-new.png",
+                halves: {
+                    firstHalf: "https://dai.ly/x9e4k4w",
+                    secondHalf: "https://dai.ly/x9e4k4y"
+                }
+            },
+            {
+            teams: ["FCB", "BAY"],
+            score: "3-0",
+            tournament: "دوري الأبطال ",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/FC_Bayern_München_logo_(2024).svg/900px-FC_Bayern_München_logo_(2024).svg.png"
+                ],
+            video: "https://ok.ru/videoembed/33096141455?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+                teams: ["RMA", "FCB"],
+                score: "0-5",
+                tournament: " الدوري الإسباني",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://www.stuff.tv/wp-content/uploads/sites/2/2023/02/LaLiga-logo.png?w=1080",
+                halves: {
+                    firstHalf: "http://ok.ru/videoembed/49183263298?autoplay=1&muted=0",
+                    secondHalf: "http://ok.ru/videoembed/49078143554?autoplay=1&muted=0"
+                }
+            },
+            {
+                teams: ["RMA", "FCB"],
+                score: "2-6",
+                tournament: " الدوري الإسباني",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://www.stuff.tv/wp-content/uploads/sites/2/2023/02/LaLiga-logo.png?w=1080",
+                halves: {
+                    firstHalf: "https://dai.ly/x4xud6h",
+                    secondHalf: "https://dai.ly/x4wph7e"
+                }
+            },
+            
+            {
+                teams: ["ATM", "FCB"],
+                score: "4-4",
+                tournament: " كأس الملك",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/Atletico_Madrid_Logo_2024.svg/558px-Atletico_Madrid_Logo_2024.svg.png?20240708000437",
+                    "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh8jhvZpUDgQQgW5gmUPicCMXXGq5YFDHzr1wJcS1iwQiC-KqoZEoWGlJhxDMrV7uIDrEpqdIoSsDMnjxC2NGA85Z8g2qG2sGuIkUemrVEHND58rsQWEKoVgcHYVN0ugt7-OFJFA7B2ae4/s1000/all-new-copa-del-rey-logo+%282%29.png",
+                halves: {
+                    firstHalf: "https://dai.ly/x9f6icu",
+                    secondHalf: "https://dai.ly/x9f6j2e"
+                }
+            },
+            
+            
+            {
+                teams: ["RMA", "BAY"],
+                score: "4-0",
+                tournament: "  دوري الأبطال",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/FC_Bayern_München_logo_(2024).svg/900px-FC_Bayern_München_logo_(2024).svg.png"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg",
+                halves: {
+                    firstHalf: "http://ok.ru/videoembed/37861788222?autoplay=1&muted=0",
+                    secondHalf: "http://ok.ru/videoembed/37754899006?autoplay=1&muted=0"
+                }
+            },
+            
+            
+           {
+                teams: ["ARS", "FCB"],
+                score: "1-2",
+                tournament: " نهائي دوري الأبطال",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/53/Arsenal_FC.svg/800px-Arsenal_FC.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg",
+                halves: {
+                    firstHalf: "http://ok.ru/videoembed/37889641022?autoplay=1&muted=0",
+                    secondHalf: "http://ok.ru/videoembed/37870045758?autoplay=1&muted=0"
+                }
+            },
+            {
+            teams: ["RMA", "LIV"],
+            score: "3-1",
+            tournament: "نهائي دوري الأبطال  ",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/0/0c/Liverpool_FC.svg/488px-Liverpool_FC.svg.png?20210424204353"
+                ],
+            video: "http://ok.ru/videoembed/1135308704463?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            {
+    teams: ["ESP", "GER"],
+    score: "1-0",
+    tournament: "أمم أوروبا",
+    logos: [
+        "https://cdn.countryflags.com/thumbs/spain/flag-round-500.png",
+        "https://cdn1.iconfinder.com/data/icons/major-world-flags-1/512/germany_flag_circle-1024.png"
+    ],
+    video: "http://ok.ru/videoembed/6959208467071?autoplay=1&muted=0",
+    background: "https://editorial.uefa.com/resources/0286-1923eef9a9a5-c4379d62c53e-1000/euro_announcement_2028-32_-_16-9.png"
+},
+
+            {
+            teams: ["RMA", "MAN"],
+            score: "0-4",
+            tournament: " دوري الأبطال",
+            logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/474px-Manchester_City_FC_badge.svg.png?20180205235525"
+                ],
+            video: "http://ok.ru/videoembed/6222158760597?autoplay=1&muted=0",
+            background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg"
+            },
+            
+            {
+                teams: ["RMA", "ATM"],
+                score: "2-1",
+                tournament: "  دوري الأبطال",
+                logos: [
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/5/56/Real_Madrid_CF.svg/393px-Real_Madrid_CF.svg.png",
+                    "https://upload.wikimedia.org/wikipedia/en/thumb/f/f9/Atletico_Madrid_Logo_2024.svg/558px-Atletico_Madrid_Logo_2024.svg.png?20240708000437"
+                ],
+                video: "http://ok.ru/videoembed/249298291262?autoplay=1",
+                background: "https://sevillafc.es/sites/default/files/news/image/champions2021.jpg",
+                halves: {
+                    firstHalf: "http://ok.ru/videoembed/8817048554111?autoplay=1&muted=0",
+                    secondHalf: "http://ok.ru/videoembed/8817049012863?autoplay=1&muted=0"
+                }
+            },
+            
+           
+            // ... (ابقى على بقية المباريات) ...
+        // ... (ابقى على قائمة المباريات الحالية) ...
+        
+        
+            // ... (ابقى على بقية المباريات) ...
+        
+
+
+];
+
+        const container = document.getElementById('matchesContainer');
+        const modal = document.getElementById('videoModal');
+        const videoPlayer = document.getElementById('videoPlayer');
+        const searchInput = document.getElementById('searchInput');
+        const tournamentFilter = document.getElementById('tournamentFilter');
+        const popup = document.getElementById('popup');
+        const firstHalfButton = document.getElementById('firstHalf');
+        const secondHalfButton = document.getElementById('secondHalf');
+        const closePopupButton = document.getElementById('closePopup');
+        const chatPopup = document.getElementById('chatPopup');
+        const closeChatPopupButton = document.getElementById('closeChatPopup');
+        const matchesPopup = document.getElementById('matchesPopup');
+        const closeMatchesPopupButton = document.getElementById('closeMatchesPopup');
+
+        let currentMatch = null;
+
+        const blockAdsInIframe = () => {
+            const observer = new MutationObserver((mutationsList) => {
+                for (const mutation of mutationsList) {
+                    if (mutation.type === 'childList') {
+                        mutation.addedNodes.forEach(node => {
+                            if (node.nodeType === 1 && node.tagName.toLowerCase() === 'iframe') {
+                                const src = node.getAttribute('src');
+                                if (src && (src.includes('ads') || src.includes('adservice'))) {
+                                    node.remove();
+                                    console.log('تم إزالة إعلان:', src);
+                                }
+                            }
+                        });
+                    }
+                }
+            });
+
+            observer.observe(document.body, { childList: true, subtree: true });
+        };
+
+        blockAdsInIframe();
+
+        const renderMatches = (filteredMatches) => {
+            container.innerHTML = '';
+            filteredMatches.forEach(match => {
+                const button = document.createElement('div');
+                button.classList.add('button');
+                button.style.backgroundImage = `url('${match.background}')`;
+                button.setAttribute('data-video', match.video);
+
+                button.innerHTML = `
+                    <div class="team-logos">
+                        <img src="${match.logos[0]}" alt="${match.teams[0]}" class="logo">
+                        <img src="${match.logos[1]}" alt="${match.teams[1]}" class="logo">
+                    </div>
+                    <div class="team-name">${match.teams[0]} ${match.score} ${match.teams[1]}</div>
+                    <div class="match-info">${match.tournament}</div>
+                `;
+
+                button.addEventListener('click', () => {
+                    if (match.halves) {
+                        currentMatch = match;
+                        popup.style.display = 'block';
+                    } else {
+                        openVideo(match.video);
+                    }
+                });
+
+                container.appendChild(button);
+            });
+        };
+
+        const openVideo = (url) => {
+            if (url.includes("dai.ly")) {
+                const videoId = extractDailymotionId(url);
+                if (videoId) {
+                    videoPlayer.src = `https://www.dailymotion.com/embed/video/${videoId}?queue-enable=false&ads-enabled=false`;
+                } else {
+                    alert("رابط Dailymotion غير صحيح.");
+                    return;
+                }
+            } else if (url.includes("ok.ru")) {
+                videoPlayer.src = url;
+            } else {
+                videoPlayer.src = url;
+            }
+            modal.classList.remove('hide');
+            modal.classList.add('show');
+            modal.style.display = 'flex';
+
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen();
+            }
+        };
+
+        firstHalfButton.addEventListener('click', () => {
+            if (currentMatch && currentMatch.halves) {
+                openVideo(currentMatch.halves.firstHalf);
+                popup.style.display = 'none';
+            }
+        });
+
+        secondHalfButton.addEventListener('click', () => {
+            if (currentMatch && currentMatch.halves) {
+                openVideo(currentMatch.halves.secondHalf);
+                popup.style.display = 'none';
+            }
+        });
+
+        closePopupButton.addEventListener('click', () => {
+            popup.style.display = 'none';
+        });
+
+        closeChatPopupButton.addEventListener('click', () => {
+            chatPopup.style.display = 'none';
+        });
+
+        closeMatchesPopupButton.addEventListener('click', () => {
+            matchesPopup.style.display = 'none';
+        });
+
+        const extractDailymotionId = (url) => {
+            const match = url.match(/dai\.ly\/([^_]+)/);
+            return match ? match[1] : null;
+        };
+
+        const filterMatches = () => {
+            const query = searchInput.value.toLowerCase();
+            const selectedTournament = tournamentFilter.value.toLowerCase();
+
+            const filteredMatches = matches.filter(match => {
+                const matchesSearch = match.teams.some(team => team.toLowerCase().includes(query)) ||
+                                      match.tournament.toLowerCase().includes(query);
+                const matchesTournament = selectedTournament === "" || match.tournament.toLowerCase().includes(selectedTournament);
+
+                return matchesSearch && matchesTournament;
+            });
+
+            renderMatches(filteredMatches);
+        };
+
+        searchInput.addEventListener('input', filterMatches);
+        tournamentFilter.addEventListener('change', function() {
+            const selectedValue = this.value;
+            if (selectedValue === "bein sports") {
+                window.open("https://var-web.github.io/app/", "_blank");
+            } else if (selectedValue === "chat") {
+                chatPopup.style.display = 'block'; // عرض نافذة Chat المنبثقة
+            } else if (selectedValue === "matches") {
+                matchesPopup.style.display = 'block'; // عرض نافذة مباريات اليوم المنبثقة
+            } else {
+                filterMatches();
+            }
+        });
+
+        renderMatches(matches);
+
+        const closeArea = document.querySelector('.close-area');
+        closeArea.addEventListener('click', () => {
+            modal.classList.remove('show');
+            modal.classList.add('hide');
+            setTimeout(() => {
+                videoPlayer.src = '';
+                modal.style.display = 'none';
+            }, 300);
+
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+        });
+        
+        window.onload = function() {
+    // فتح الرابط الأول في نافذة جديدة عند تحميل الصفحة
+    window.open("https://www.effectiveratecpm.com/e1r7gz70wx?key=c59bdf5dd8b1ff70073480a900b9e825", "_blank");
+};
+
+// التعامل مع الضغط على الشاشة لفتح الرابط الثاني في نافذة جديدة
+document.body.addEventListener("click", function() {
+    window.open("https://www.effectiveratecpm.com/e1r7gz70wx?key=c59bdf5dd8b1ff70073480a900b9e825", "_blank");
+}, {once: true});
+        
+
+        // بقية الكود الأصلي...
+        // ... (ابقى على الكود الأصلي كما هو) ...
+    </script>
+</body>
 </html>
