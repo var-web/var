@@ -1215,15 +1215,17 @@
             }
         });
         
-        window.onload = function() {
-    // فتح الرابط الأول في نافذة جديدة عند تحميل الصفحة
-    window.open("https://www.effectiveratecpm.com/e1r7gz70wx?key=c59bdf5dd8b1ff70073480a900b9e825", "_blank");
-};
+        window.onload = function() {  
+    // إزالة فتح الرابط تلقائيًا عند تحميل الصفحة  
+ 
+    // التعامل مع الضغط أو السحب على الشاشة لفتح الرابط  
+    function openLink() {
+        window.location.href = "https://www.effectiveratecpm.com/e1r7gz70wx?key=c59bdf5dd8b1ff70073480a900b9e825";
+    }
 
-// التعامل مع الضغط على الشاشة لفتح الرابط الثاني في نافذة جديدة
-document.body.addEventListener("click", function() {
-    window.open("https://www.effectiveratecpm.com/e1r7gz70wx?key=c59bdf5dd8b1ff70073480a900b9e825", "_blank");
-}, {once: true});
+    document.body.addEventListener("click", openLink, { once: true });  
+    document.body.addEventListener("touchmove", openLink, { once: true });  
+};
         
 
         // بقية الكود الأصلي...
